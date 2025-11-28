@@ -1,6 +1,8 @@
 package controller;
+
 import java.util.List;
 import java.util.Map;
+import obj.Room;
 
 public class AdminRoomControl {
     public List<Room> getAllRooms() {

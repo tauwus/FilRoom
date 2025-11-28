@@ -1,5 +1,7 @@
 package controller;
+
 import java.util.List;
+import obj.Booking;
 
 public class AdminBookingControl {
     public List<Booking> getPendingBookings() {

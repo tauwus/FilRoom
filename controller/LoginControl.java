@@ -22,7 +22,7 @@ public class LoginControl {
     }
 
     private boolean checkAdminLogin(String username, String password) {
-        String sql = "SELECT admin_id, nama_lengkap FROM admins WHERE username = ? AND password = ?";
+        String sql = "SELECT admin_id, nama_lengkap, username FROM admins WHERE username = ? AND password = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
@@ -31,7 +31,7 @@ public class LoginControl {
             
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                Admin admin = new Admin(rs.getInt("admin_id"), rs.getString("nama_lengkap"));
+                Admin admin = new Admin(rs.getInt("admin_id"), rs.getString("nama_lengkap"), rs.getString("username"));
                 AuthControl.createSession(admin);
                 return true;
             }
@@ -43,7 +43,7 @@ public class LoginControl {
 
     private boolean checkCivitasLogin(String emailOrNim, String password) {
         // Bisa login pakai Email atau NIM
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, role, status_akun FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, role, status_akun, no_telepon FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -62,7 +62,9 @@ public class LoginControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("role")
+                    rs.getString("role"),
+                    rs.getString("no_telepon"),
+                    rs.getString("status_akun")
                 );
                 AuthControl.createSession(user);
                 return true;

@@ -87,7 +87,7 @@ public class LoginPage extends JPanel {
                 if (user.getRole().equals("ADMIN")) {
                     mainFrame.showView("Dashboard"); // AdminDashboard
                 } else {
-                    mainFrame.showView("Dashboard"); // User Dashboard (sementara pakai dashboard yang sama dulu)
+                    mainFrame.showView("Home"); // User Home Page
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Login Gagal. Cek username/password.", "Error", JOptionPane.ERROR_MESSAGE);

@@ -1,14 +1,30 @@
 package View;
 
+import Controller.AuthControl;
+import Controller.BookingControl;
+import Model.User;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 public class HomePage extends JPanel {
     private MainFrame mainFrame;
+    private JPanel bookingsListPanel;
+    private BookingControl bookingControl;
 
     public HomePage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.bookingControl = new BookingControl();
+        
         setLayout(new BorderLayout());
         setBackground(new Color(225, 255, 255)); // Light cyan background
 
@@ -55,12 +71,11 @@ public class HomePage extends JPanel {
 
         contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Recent Bookings List
-        contentPanel.add(createBookingItem("Lab Pembelajaran G1.3", "15 - 10 - 2025", "09:00 - 11:00", "Dikonfirmasi", new Color(144, 238, 144)));
-        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        contentPanel.add(createBookingItem("Ruang Kelas F2.8", "23 - 10 - 2025", "14:00 - 16:00", "Menunggu", new Color(255, 228, 181)));
-        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        contentPanel.add(createBookingItem("Lab MGM F9.2", "15 - 10 - 2025", "13:00 - 16:00", "Dikonfirmasi", new Color(144, 238, 144)));
+        // Recent Bookings List Container
+        bookingsListPanel = new JPanel();
+        bookingsListPanel.setLayout(new BoxLayout(bookingsListPanel, BoxLayout.Y_AXIS));
+        bookingsListPanel.setBackground(new Color(225, 255, 255));
+        contentPanel.add(bookingsListPanel);
 
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setBorder(null);
@@ -80,9 +95,6 @@ public class HomePage extends JPanel {
         pinjamButton.setBorder(new EmptyBorder(15, 30, 15, 30));
         pinjamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         pinjamButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        // Icon placeholder (using text for now)
-        // pinjamButton.setIcon(...); 
         
         pinjamButton.addActionListener(e -> showDateSelectionDialog());
 
@@ -111,6 +123,44 @@ public class HomePage extends JPanel {
         bottomContainer.add(bottomNav);
         
         add(bottomContainer, BorderLayout.SOUTH);
+
+        // Add listener to refresh data when view is shown
+        addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                refreshData();
+            }
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {}
+            @Override
+            public void ancestorMoved(AncestorEvent event) {}
+        });
+    }
+
+    private void refreshData() {
+        bookingsListPanel.removeAll();
+        User user = AuthControl.getCurrentUser();
+        if (user != null) {
+            List<String[]> bookings = bookingControl.getRecentBookings(user.getId());
+            if (bookings.isEmpty()) {
+                JLabel emptyLabel = new JLabel("Belum ada peminjaman.");
+                emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                bookingsListPanel.add(emptyLabel);
+            } else {
+                for (String[] b : bookings) {
+                    // b[0]=room, b[1]=date, b[2]=time, b[3]=status
+                    Color statusColor = Color.LIGHT_GRAY;
+                    if ("disetujui".equalsIgnoreCase(b[3])) statusColor = new Color(144, 238, 144);
+                    else if ("menunggu_persetujuan".equalsIgnoreCase(b[3])) statusColor = new Color(255, 228, 181);
+                    else if ("ditolak".equalsIgnoreCase(b[3])) statusColor = new Color(255, 100, 100);
+                    
+                    bookingsListPanel.add(createBookingItem(b[0], b[1], b[2], b[3], statusColor));
+                    bookingsListPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                }
+            }
+        }
+        bookingsListPanel.revalidate();
+        bookingsListPanel.repaint();
     }
 
     private JPanel createInfoCard(String title1, String title2, String value, Color bgColor) {
@@ -191,12 +241,18 @@ public class HomePage extends JPanel {
         return item;
     }
 
+    private YearMonth currentYearMonth;
+    private JPanel daysGrid;
+    private JLabel monthLabel;
+
     private void showDateSelectionDialog() {
         JDialog dialog = new JDialog(mainFrame, "Pilih Tanggal", true);
         dialog.setSize(350, 500);
         dialog.setLocationRelativeTo(mainFrame);
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().setBackground(Color.WHITE);
+
+        currentYearMonth = YearMonth.now();
 
         // Header
         JPanel header = new JPanel(new BorderLayout());
@@ -223,42 +279,93 @@ public class HomePage extends JPanel {
         calendarPanel.setBackground(Color.WHITE);
         calendarPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        JLabel monthLabel = new JLabel("Oktober 2025");
+        // Month Navigation
+        JPanel monthNav = new JPanel(new BorderLayout());
+        monthNav.setBackground(Color.WHITE);
+        monthNav.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        JButton prevBtn = new JButton("<");
+        prevBtn.addActionListener(e -> {
+            currentYearMonth = currentYearMonth.minusMonths(1);
+            updateCalendar();
+        });
+        
+        JButton nextBtn = new JButton(">");
+        nextBtn.addActionListener(e -> {
+            currentYearMonth = currentYearMonth.plusMonths(1);
+            updateCalendar();
+        });
+
+        monthLabel = new JLabel("", SwingConstants.CENTER);
         monthLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        monthLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        calendarPanel.add(monthLabel);
+
+        monthNav.add(prevBtn, BorderLayout.WEST);
+        monthNav.add(monthLabel, BorderLayout.CENTER);
+        monthNav.add(nextBtn, BorderLayout.EAST);
+
+        calendarPanel.add(monthNav);
         calendarPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Days Grid
-        JPanel daysGrid = new JPanel(new GridLayout(0, 7, 10, 10));
-        daysGrid.setBackground(Color.WHITE);
-        
+        // Days Header
+        JPanel daysHeader = new JPanel(new GridLayout(1, 7, 10, 10));
+        daysHeader.setBackground(Color.WHITE);
         String[] days = {"Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"};
         for (String day : days) {
             JLabel l = new JLabel(day, SwingConstants.CENTER);
             l.setForeground(Color.GRAY);
             l.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            daysGrid.add(l);
+            daysHeader.add(l);
         }
+        calendarPanel.add(daysHeader);
+        calendarPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // Dummy days for October 2025 (Starts Wednesday)
-        // 1st Oct 2025 is Wednesday
-        for (int i = 0; i < 2; i++) {
-            daysGrid.add(new JLabel("")); // Empty slots
-        }
-        
-        for (int i = 1; i <= 31; i++) {
-            JLabel dayLabel = new JLabel(String.valueOf(i), SwingConstants.CENTER);
-            dayLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
-            if (i == 4 || i == 11 || i == 18 || i == 25) {
-                dayLabel.setForeground(Color.RED); // Sundays/Holidays
-            }
-            daysGrid.add(dayLabel);
-        }
-
+        // Days Grid
+        daysGrid = new JPanel(new GridLayout(0, 7, 10, 10));
+        daysGrid.setBackground(Color.WHITE);
         calendarPanel.add(daysGrid);
-        dialog.add(calendarPanel, BorderLayout.CENTER);
 
+        updateCalendar();
+
+        dialog.add(calendarPanel, BorderLayout.CENTER);
         dialog.setVisible(true);
+    }
+
+    private void updateCalendar() {
+        monthLabel.setText(currentYearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("id", "ID"))));
+        daysGrid.removeAll();
+
+        LocalDate firstOfMonth = currentYearMonth.atDay(1);
+        int dayOfWeek = firstOfMonth.getDayOfWeek().getValue(); // 1=Monday, 7=Sunday
+
+        // Empty slots for days before the 1st
+        for (int i = 1; i < dayOfWeek; i++) {
+            daysGrid.add(new JLabel(""));
+        }
+
+        int daysInMonth = currentYearMonth.lengthOfMonth();
+        for (int i = 1; i <= daysInMonth; i++) {
+            int day = i;
+            JButton dayBtn = new JButton(String.valueOf(day));
+            dayBtn.setBorderPainted(false);
+            dayBtn.setContentAreaFilled(false);
+            dayBtn.setFocusPainted(false);
+            dayBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+            
+            // Highlight Sundays
+            LocalDate date = currentYearMonth.atDay(day);
+            if (date.getDayOfWeek().getValue() == 7) {
+                dayBtn.setForeground(Color.RED);
+            }
+
+            dayBtn.addActionListener(e -> {
+                JOptionPane.showMessageDialog(this, "Tanggal dipilih: " + date);
+                // Here you would typically open the booking form for this date
+            });
+
+            daysGrid.add(dayBtn);
+        }
+
+        daysGrid.revalidate();
+        daysGrid.repaint();
     }
 }

@@ -84,12 +84,12 @@ public class SplashScreen extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                mainFrame.showView("Home");
+                mainFrame.showView("Login");
             }
         });
         
         // Auto transition after 3 seconds
-        Timer timer = new Timer(1000, e -> mainFrame.showView("Home"));
+        Timer timer = new Timer(3000, e -> mainFrame.showView("Login"));
         timer.setRepeats(false);
         timer.start();
     }

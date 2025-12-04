@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "Libraries/mssql-jdbc-12.10.0.jre11.jar",
+        "c:\\Users\\ASUS\\OneDrive\\Dokumen\\NetBeansProjects\\Basis-Data\\dist\\lib\\mssql-jdbc-12.10.0.jre11.jar"
+    ]
+}

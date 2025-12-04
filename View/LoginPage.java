@@ -3,13 +3,12 @@ package View;
 import Controller.AuthControl;
 import Controller.LoginControl;
 import Model.User;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 public class LoginPage extends JPanel {
     private MainFrame mainFrame;

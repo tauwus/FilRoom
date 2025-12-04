@@ -23,6 +23,8 @@ public class MainFrame extends JFrame {
         mainPanel.add(new RegisterPage(this), "Register");
         mainPanel.add(new AdminDashboard(this), "Dashboard");
         mainPanel.add(new HomePage(this), "Home");
+        mainPanel.add(new DateSelectionPage(this), "DateSelection");
+        mainPanel.add(new RoomListPage(this), "RoomList");
         // Add other pages as needed
         
         add(mainPanel);

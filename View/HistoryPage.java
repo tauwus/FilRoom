@@ -1,4 +1,5 @@
-package gui;
+package view;
+
 public class HistoryPage {
-    
+
 }

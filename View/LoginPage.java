@@ -1,9 +1,5 @@
 package View;
 
-import Controller.AuthControl;
-import Controller.LoginControl;
-import Model.User;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -15,12 +11,9 @@ public class LoginPage extends JPanel {
     private MainFrame mainFrame;
     private JTextField emailField;
     private JPasswordField passwordField;
-    private LoginControl loginControl; // Controller
 
     public LoginPage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.loginControl = new LoginControl(); // Init
-
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
@@ -56,6 +49,7 @@ public class LoginPage extends JPanel {
         forgotPassLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         forgotPassLabel.setForeground(new Color(50, 50, 150));
         forgotPassLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        // Hack to align right in BoxLayout
         JPanel forgotPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         forgotPanel.setBackground(Color.WHITE);
         forgotPanel.setMaximumSize(new Dimension(400, 30));
@@ -67,31 +61,10 @@ public class LoginPage extends JPanel {
         // Login Button
         JButton loginButton = new JButton("Masuk");
         styleButton(loginButton);
-        
-        // --- LOGIKA LOGIN DI SINI ---
         loginButton.addActionListener(e -> {
-            String id = getRealText(emailField, "Email atau NIM atau NIP");
-            String pass = new String(passwordField.getPassword());
-            if(pass.equals("Kata Sandi")) pass = "";
-
-            if (id.isEmpty() || pass.isEmpty()) {
-                 JOptionPane.showMessageDialog(this, "Harap isi kredensial.", "Warning", JOptionPane.WARNING_MESSAGE);
-                 return;
-            }
-
-            if (loginControl.login(id, pass)) {
-                User user = AuthControl.getCurrentUser();
-                JOptionPane.showMessageDialog(this, "Selamat datang, " + user.getName());
-                
-                // Arahkan user tergantung Role
-                if (user.getRole().equals("ADMIN")) {
-                    mainFrame.showView("Dashboard"); // AdminDashboard
-                } else {
-                    mainFrame.showView("Dashboard"); // User Dashboard (sementara pakai dashboard yang sama dulu)
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Login Gagal. Cek username/password.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            // Perform login logic here
+            // For now, just go to dashboard
+            mainFrame.showView("Dashboard");
         });
         centerPanel.add(loginButton);
 
@@ -113,13 +86,6 @@ public class LoginPage extends JPanel {
 
         add(centerPanel, BorderLayout.CENTER);
     }
-    
-    // Helper untuk mengambil text asli
-    private String getRealText(JTextField field, String placeholder) {
-        String text = field.getText();
-        if (text.equals(placeholder)) return "";
-        return text;
-    }
 
     private void styleTextField(JTextField field, String placeholder) {
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
@@ -139,26 +105,14 @@ public class LoginPage extends JPanel {
                     field.setText("");
                     field.setForeground(Color.BLACK);
                 }
-                // Jika password, set echo char
-                if (field instanceof JPasswordField) {
-                     ((JPasswordField) field).setEchoChar('•');
-                }
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (field.getText().isEmpty()) {
                     field.setText(placeholder);
                     field.setForeground(Color.GRAY);
-                    // Jika password, matikan echo char saat menampilkan placeholder "Kata Sandi"
-                    if (field instanceof JPasswordField) {
-                         ((JPasswordField) field).setEchoChar((char) 0);
-                    }
                 }
             }
         });
-        // Inisialisasi awal untuk password (biar text "Kata Sandi" terbaca)
-        if (field instanceof JPasswordField) {
-             ((JPasswordField) field).setEchoChar((char) 0);
-        }
     }
 
     private void styleButton(JButton button) {

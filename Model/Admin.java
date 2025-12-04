@@ -1,12 +1,5 @@
 package Model;
 
-public class Admin extends User {
-    public Admin(int id, String name) {
-        super(id, name);
-    }
+public class Admin {
 
-    @Override
-    public String getRole() {
-        return "ADMIN";
-    }
 }

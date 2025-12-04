@@ -1,21 +1,5 @@
 package Model;
 
-public abstract class User {
-    protected int id;
-    protected String name;
+public class User {
 
-    public User(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public abstract String getRole();
 }

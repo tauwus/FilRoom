@@ -1,12 +1,11 @@
 package View;
 
-import Controller.RegisterControl;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class RegisterPage extends JPanel {
     private MainFrame mainFrame;
@@ -14,12 +13,9 @@ public class RegisterPage extends JPanel {
     private JTextField idField; // NIM/NIP
     private JTextField emailField;
     private JPasswordField passwordField;
-    private RegisterControl registerControl; // Tambahkan controller
 
     public RegisterPage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.registerControl = new RegisterControl(); // Inisialisasi
-
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
@@ -67,29 +63,9 @@ public class RegisterPage extends JPanel {
         // Register Button
         JButton registerButton = new JButton("Daftar");
         styleButton(registerButton);
-        
-        // --- LOGIKA REGISTER DI SINI ---
         registerButton.addActionListener(e -> {
-            String nama = getRealText(nameField, "Nama");
-            String nim = getRealText(idField, "NIM/NIP");
-            String email = getRealText(emailField, "Email");
-            String pass = new String(passwordField.getPassword());
-            if(pass.equals("Kata Sandi")) pass = "";
-
-            // Hardcode Role untuk testing (bisa ditambah combobox nanti)
-            String role = "mahasiswa"; 
-
-            if(nama.isEmpty() || nim.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Mohon isi semua data!", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                boolean success = registerControl.registerUser(nim, nama, email, pass, role);
-                if(success) {
-                    JOptionPane.showMessageDialog(this, "Registrasi Berhasil! Silakan Login.");
-                    mainFrame.showView("Login");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Registrasi Gagal. NIM/Email mungkin sudah terdaftar.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            // Perform register logic here
+            JOptionPane.showMessageDialog(this, "Register Clicked!");
         });
         centerPanel.add(registerButton);
 
@@ -110,13 +86,6 @@ public class RegisterPage extends JPanel {
         centerPanel.add(loginLabel);
 
         add(centerPanel, BorderLayout.CENTER);
-    }
-
-    // Helper untuk mengambil text asli dan mengabaikan placeholder
-    private String getRealText(JTextField field, String placeholder) {
-        String text = field.getText();
-        if (text.equals(placeholder)) return "";
-        return text;
     }
 
     private void styleTextField(JTextField field, String placeholder) {

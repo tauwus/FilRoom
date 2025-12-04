@@ -1,7 +1,5 @@
-package controller;
+package Controller;
 
 public class UserControl {
 
 }
-
-

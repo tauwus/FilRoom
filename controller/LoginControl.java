@@ -10,11 +10,9 @@ import java.sql.SQLException;
 public class LoginControl {
 
     public boolean login(String identifier, String password) {
-        // 1. Cek Admin
         if (checkAdminLogin(identifier, password)) {
             return true;
         }
-        // 2. Cek Civitas Akademik
         if (checkCivitasLogin(identifier, password)) {
             return true;
         }
@@ -42,8 +40,7 @@ public class LoginControl {
     }
 
     private boolean checkCivitasLogin(String emailOrNim, String password) {
-        // Bisa login pakai Email atau NIM
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, role, status_akun, no_telepon FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun, no_telepon FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -55,14 +52,13 @@ public class LoginControl {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 String status = rs.getString("status_akun");
-                if ("nonaktif".equalsIgnoreCase(status)) return false;
+                if ("Nonaktif".equalsIgnoreCase(status)) return false;
 
                 CivitasAkademik user = new CivitasAkademik(
                     rs.getInt("user_id"),
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("role"),
                     rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 );

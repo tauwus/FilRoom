@@ -12,7 +12,7 @@ public class RoomControl {
 
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT room_id, nama_ruangan, lokasi, kapasitas, status_ruangan FROM rooms";
+        String sql = "SELECT room_id, nama_ruangan, lokasi, kapasitas FROM rooms";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -23,8 +23,7 @@ public class RoomControl {
                     rs.getInt("room_id"),
                     rs.getString("nama_ruangan"),
                     rs.getString("lokasi"),
-                    rs.getInt("kapasitas"),
-                    rs.getString("status_ruangan")
+                    rs.getInt("kapasitas")
                 ));
             }
         } catch (SQLException e) {

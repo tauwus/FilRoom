@@ -32,9 +32,8 @@ public class RoomListPage extends JPanel {
         this.roomControl = new RoomControl();
         
         setLayout(new BorderLayout());
-        setBackground(new Color(225, 255, 255)); // Light cyan background
+        setBackground(new Color(225, 255, 255));
 
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(225, 255, 255));
         header.setBorder(new EmptyBorder(15, 15, 5, 15));
@@ -55,17 +54,15 @@ public class RoomListPage extends JPanel {
         
         add(header, BorderLayout.NORTH);
 
-        // Content Wrapper
         JPanel contentWrapper = new ScrollablePanel();
         contentWrapper.setLayout(new BoxLayout(contentWrapper, BoxLayout.Y_AXIS));
         contentWrapper.setBackground(new Color(225, 255, 255));
         contentWrapper.setBorder(new EmptyBorder(0, 0, 20, 0));
 
-        // Date Scroll Section
         JPanel dateContainer = new JPanel(new BorderLayout());
         dateContainer.setBackground(new Color(225, 255, 255));
         dateContainer.setBorder(new EmptyBorder(5, 0, 10, 0));
-        dateContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); // Limit height
+        dateContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         
         datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         datePanel.setBackground(new Color(225, 255, 255));
@@ -75,18 +72,16 @@ public class RoomListPage extends JPanel {
         dateScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         dateScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         dateScrollPane.setBorder(null);
-        dateScrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0)); // Hide scrollbar
+        dateScrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
         
         dateContainer.add(dateScrollPane, BorderLayout.CENTER);
         contentWrapper.add(dateContainer);
 
-        // Search & Filter Section
         JPanel controlsPanel = new JPanel();
         controlsPanel.setLayout(new BoxLayout(controlsPanel, BoxLayout.Y_AXIS));
         controlsPanel.setBackground(new Color(225, 255, 255));
         controlsPanel.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        // Search Bar
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setBackground(new Color(240, 240, 240));
         searchPanel.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
@@ -98,7 +93,6 @@ public class RoomListPage extends JPanel {
         searchField.setBackground(new Color(240, 240, 240));
         searchField.setOpaque(true);
         
-        // Placeholder logic
         searchField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -116,7 +110,6 @@ public class RoomListPage extends JPanel {
             }
         });
         
-        // Filter logic
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { filterRooms(); }
             public void removeUpdate(DocumentEvent e) { filterRooms(); }
@@ -132,8 +125,7 @@ public class RoomListPage extends JPanel {
         controlsPanel.add(searchPanel);
         controlsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Filters
-        JPanel filterPanel = new JPanel(new GridLayout(1, 1)); // Only 1 filter now
+        JPanel filterPanel = new JPanel(new GridLayout(1, 1));
         filterPanel.setBackground(new Color(225, 255, 255));
         filterPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         
@@ -147,7 +139,6 @@ public class RoomListPage extends JPanel {
         
         contentWrapper.add(controlsPanel);
 
-        // Room List
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(new Color(225, 255, 255));
@@ -161,7 +152,6 @@ public class RoomListPage extends JPanel {
         mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(mainScrollPane, BorderLayout.CENTER);
 
-        // Refresh data when shown
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
@@ -174,28 +164,23 @@ public class RoomListPage extends JPanel {
         });
     }
 
-    // Helper class to force panel to track viewport width
     private class ScrollablePanel extends JPanel implements Scrollable {
         @Override
         public Dimension getPreferredScrollableViewportSize() {
             return getPreferredSize();
         }
-
         @Override
         public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
             return 16;
         }
-
         @Override
         public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
             return 16;
         }
-
         @Override
         public boolean getScrollableTracksViewportWidth() {
-            return true; // Force width to match viewport
+            return true;
         }
-
         @Override
         public boolean getScrollableTracksViewportHeight() {
             return false;
@@ -208,7 +193,7 @@ public class RoomListPage extends JPanel {
         DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEE", Locale.forLanguageTag("id-ID"));
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM", Locale.forLanguageTag("id-ID"));
 
-        for (int i = 0; i < 14; i++) { // Show 2 weeks
+        for (int i = 0; i < 14; i++) {
             LocalDate date = startDate.plusDays(i);
             boolean isSelected = date.equals(selectedDate);
             
@@ -238,8 +223,6 @@ public class RoomListPage extends JPanel {
                     updateDateStrip();
                     datePanel.revalidate();
                     datePanel.repaint();
-                    // Optionally reload rooms if availability depends on date
-                    // loadRooms(); 
                 }
             });
             
@@ -285,7 +268,6 @@ public class RoomListPage extends JPanel {
         ));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
 
-        // Header: Name + Status
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
         
@@ -304,28 +286,8 @@ public class RoomListPage extends JPanel {
         
         header.add(titlePanel, BorderLayout.CENTER);
         
-        JLabel statusLabel = new JLabel(room.getStatus());
-        statusLabel.setOpaque(true);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        statusLabel.setBorder(new EmptyBorder(5, 10, 5, 10));
-        
-        if ("tersedia".equalsIgnoreCase(room.getStatus())) {
-            statusLabel.setBackground(new Color(144, 238, 144)); // Green
-            statusLabel.setText("Tersedia");
-        } else {
-            statusLabel.setBackground(new Color(255, 182, 193)); // Red/Pink
-            statusLabel.setText("Terpakai");
-        }
-        
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        statusPanel.setBackground(Color.WHITE);
-        statusPanel.add(statusLabel);
-        
-        header.add(statusPanel, BorderLayout.EAST);
-        
         card.add(header, BorderLayout.NORTH);
         
-        // Body: Capacity
         JPanel body = new JPanel(new FlowLayout(FlowLayout.LEFT));
         body.setBackground(Color.WHITE);
         body.setBorder(new EmptyBorder(10, 0, 10, 0));
@@ -336,18 +298,20 @@ public class RoomListPage extends JPanel {
         
         card.add(body, BorderLayout.CENTER);
         
-        // Footer: Button
         JButton selectBtn = new JButton("Pilih Ruangan");
-        selectBtn.setBackground(new Color(50, 80, 160)); // Blue
+        selectBtn.setBackground(new Color(50, 80, 160));
         selectBtn.setForeground(Color.WHITE);
         selectBtn.setFocusPainted(false);
         selectBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
         selectBtn.setPreferredSize(new Dimension(100, 40));
         
-        if (!"tersedia".equalsIgnoreCase(room.getStatus())) {
-            selectBtn.setBackground(Color.GRAY);
-            selectBtn.setEnabled(false);
-        }
+        selectBtn.addActionListener(e -> {
+            BookingForm bookingForm = (BookingForm) mainFrame.getView("BookingForm");
+            if (bookingForm != null) {
+                bookingForm.prepareBooking(room, selectedDate);
+                mainFrame.showView("BookingForm");
+            }
+        });
         
         card.add(selectBtn, BorderLayout.SOUTH);
         

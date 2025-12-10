@@ -181,11 +181,7 @@ public class BookingForm extends JPanel {
         String start = (String) startCombo.getSelectedItem();
         String end = (String) endCombo.getSelectedItem();
         
-        // Validasi Jam (Start < End)
-        if (start.compareTo(end) >= 0) {
-            JOptionPane.showMessageDialog(this, "Jam selesai harus lebih besar dari jam mulai.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        // Validasi Jam (Start < End) dipindahkan ke Controller
 
         int participants = 0;
         try {
@@ -203,22 +199,26 @@ public class BookingForm extends JPanel {
         }
 
         // 2. Kirim ke Controller
-        boolean success = bookingControl.createBooking(
-            user.getId(),
-            selectedRoom.getId(),
-            selectedDate,
-            start,
-            end,
-            (String) purposeCombo.getSelectedItem(),
-            participants,
-            descArea.getText()
-        );
+        try {
+            boolean success = bookingControl.createBooking(
+                user,
+                selectedRoom,
+                selectedDate,
+                start,
+                end,
+                (String) purposeCombo.getSelectedItem(),
+                participants,
+                descArea.getText()
+            );
 
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Pengajuan Berhasil! Menunggu persetujuan admin.");
-            mainFrame.showView("Home");
-        } else {
-            JOptionPane.showMessageDialog(this, "Gagal mengajukan peminjaman. Coba lagi.", "Error", JOptionPane.ERROR_MESSAGE);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Pengajuan Berhasil! Menunggu persetujuan admin.");
+                mainFrame.showView("Home");
+            } else {
+                JOptionPane.showMessageDialog(this, "Gagal mengajukan peminjaman. Coba lagi.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

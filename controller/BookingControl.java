@@ -1,5 +1,8 @@
 package Controller;
 
+import Model.BookingStatus;
+import Model.Room;
+import Model.User;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,9 +43,17 @@ public class BookingControl {
         return bookings;
     }
 
-    public boolean createBooking(int userId, int roomId, LocalDate date, String startTime, String endTime, 
-                                 String purpose, int participants, String description) {
+    public boolean createBooking(User user, Room room, LocalDate date, String startTime, String endTime, 
+                                 String purpose, int participants, String description) throws IllegalArgumentException {
         
+        // Validation Logic
+        if (startTime.compareTo(endTime) >= 0) {
+            throw new IllegalArgumentException("Jam selesai harus lebih besar dari jam mulai.");
+        }
+        if (participants <= 0) {
+            throw new IllegalArgumentException("Jumlah peserta harus lebih dari 0.");
+        }
+
         Connection conn = null;
         PreparedStatement stmtBooking = null;
         PreparedStatement stmtDetail = null;
@@ -58,9 +69,9 @@ public class BookingControl {
             String fullDescription = purpose + " (" + participants + " org) - " + description;
             
             stmtBooking = conn.prepareStatement(insertBookingSQL, Statement.RETURN_GENERATED_KEYS);
-            stmtBooking.setInt(1, userId);
+            stmtBooking.setInt(1, user.getId());
             stmtBooking.setString(2, fullDescription);
-            stmtBooking.setString(3, "Menunggu");
+            stmtBooking.setString(3, BookingStatus.MENUNGGU_PERSETUJUAN.toString());
             
             int affectedRows = stmtBooking.executeUpdate();
             if (affectedRows == 0) throw new SQLException("Gagal membuat booking.");
@@ -75,7 +86,7 @@ public class BookingControl {
 
             stmtDetail = conn.prepareStatement(insertDetailSQL);
             stmtDetail.setInt(1, bookingId);
-            stmtDetail.setInt(2, roomId);
+            stmtDetail.setInt(2, room.getId());
             stmtDetail.setDate(3, java.sql.Date.valueOf(date));
             stmtDetail.setString(4, startTime + ":00");
             stmtDetail.setString(5, endTime + ":00");
@@ -110,12 +121,14 @@ public class BookingControl {
         int count = 0;
         // Kita anggap "Aktif" adalah yang statusnya Menunggu atau Disetujui
         String sql = "SELECT COUNT(*) AS total FROM bookings " +
-                     "WHERE user_id = ? AND status_peminjaman IN ('Menunggu', 'Disetujui')";
+                     "WHERE user_id = ? AND status_peminjaman IN (?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, userId);
+            stmt.setString(2, BookingStatus.MENUNGGU_PERSETUJUAN.toString());
+            stmt.setString(3, BookingStatus.DISETUJUI.toString());
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {

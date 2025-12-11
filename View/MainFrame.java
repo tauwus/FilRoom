@@ -9,6 +9,7 @@ public class MainFrame extends JFrame {
     
     // Simpan referensi page agar bisa diakses
     private BookingForm bookingForm; 
+    private RoomListPage roomListPage;
 
     public MainFrame() {
         setTitle("FILROOM");
@@ -22,14 +23,17 @@ public class MainFrame extends JFrame {
 
         // Initialize pages
         bookingForm = new BookingForm(this); // Init Booking Form
+        roomListPage = new RoomListPage(this);
 
         mainPanel.add(new SplashScreen(this), "Splash");
         mainPanel.add(new LoginPage(this), "Login");
         mainPanel.add(new RegisterPage(this), "Register");
         mainPanel.add(new AdminDashboard(this), "Dashboard");
         mainPanel.add(new HomePage(this), "Home");
+        mainPanel.add(new HistoryPage(this), "History");
+        mainPanel.add(new ProfilePage(this), "Profile");
         mainPanel.add(new DateSelectionPage(this), "DateSelection");
-        mainPanel.add(new RoomListPage(this), "RoomList");
+        mainPanel.add(roomListPage, "RoomList");
         
         // Add BookingForm
         mainPanel.add(bookingForm, "BookingForm");
@@ -46,6 +50,7 @@ public class MainFrame extends JFrame {
     // Helper untuk mengambil object panel tertentu (untuk passing data)
     public Component getView(String name) {
         if ("BookingForm".equals(name)) return bookingForm;
+        if ("RoomList".equals(name)) return roomListPage;
         return null;
     }
 

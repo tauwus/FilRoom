@@ -5,12 +5,17 @@ import Controller.BookingControl;
 import Model.Room;
 import Model.User;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 public class BookingForm extends JPanel {
+    private static final Color PRIMARY_BLUE = new Color(30, 60, 120);
     private MainFrame mainFrame;
     private BookingControl bookingControl;
     
@@ -24,6 +29,8 @@ public class BookingForm extends JPanel {
     private JComboBox<String> purposeCombo;
     private JTextField participantsField;
     private JTextArea descArea;
+    
+    // Occupied slots removed - logic moved to Controller
 
     public BookingForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -81,11 +88,15 @@ public class BookingForm extends JPanel {
         JPanel timeInputs = new JPanel(new GridLayout(1, 2, 15, 0));
         timeInputs.setOpaque(false);
         
-        // Generate jam 07:00 - 21:00
-        String[] timeSlots = generateTimeSlots(7, 21);
+        // Initial empty combos
+        startCombo = new JComboBox<>();
+        endCombo = new JComboBox<>();
+        endCombo.setEnabled(false); // Disabled initially
         
-        JPanel startWrapper = createInputWrapper("Jam Mulai", startCombo = new JComboBox<>(timeSlots));
-        JPanel endWrapper = createInputWrapper("Jam Selesai", endCombo = new JComboBox<>(timeSlots));
+        startCombo.addActionListener(e -> updateEndCombo());
+        
+        JPanel startWrapper = createInputWrapper("Jam Mulai", startCombo);
+        JPanel endWrapper = createInputWrapper("Jam Selesai", endCombo);
         
         timeInputs.add(startWrapper);
         timeInputs.add(endWrapper);
@@ -163,19 +174,63 @@ public class BookingForm extends JPanel {
         this.selectedRoom = room;
         this.selectedDate = date;
         
+        // Populate Start Combo
+        populateStartCombo();
+        
         // Reset fields
-        startCombo.setSelectedIndex(0);
-        endCombo.setSelectedIndex(0);
         purposeCombo.setSelectedIndex(0);
         participantsField.setText("");
         descArea.setText("");
+    }
+    
+    private void populateStartCombo() {
+        startCombo.removeAllItems();
+        endCombo.removeAllItems();
+        endCombo.setEnabled(false);
+        
+        List<String> availableStarts = bookingControl.getAvailableStartTimes(selectedRoom.getId(), selectedDate);
+        
+        for (String time : availableStarts) {
+            startCombo.addItem(time);
+        }
+        
+        if (startCombo.getItemCount() == 0) {
+            startCombo.addItem("Penuh");
+            startCombo.setEnabled(false);
+        } else {
+            startCombo.setEnabled(true);
+            startCombo.setSelectedIndex(-1); // No selection initially
+        }
+    }
+    
+    private void updateEndCombo() {
+        endCombo.removeAllItems();
+        String selectedStart = (String) startCombo.getSelectedItem();
+        
+        if (selectedStart == null || selectedStart.equals("Penuh")) {
+            endCombo.setEnabled(false);
+            return;
+        }
+        
+        List<String> availableEnds = bookingControl.getAvailableEndTimes(selectedStart, selectedRoom.getId(), selectedDate);
+        
+        for (String time : availableEnds) {
+            endCombo.addItem(time);
+        }
+        
+        endCombo.setEnabled(true);
     }
 
     private void submitBooking() {
         // 1. Validasi Input
         if (purposeCombo.getSelectedIndex() == 0 || participantsField.getText().isEmpty() || descArea.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mohon lengkapi semua data!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            showWarningPopup("Mohon lengkapi semua data!");
             return;
+        }
+        
+        if (startCombo.getSelectedItem() == null || endCombo.getSelectedItem() == null) {
+             showWarningPopup("Mohon pilih waktu peminjaman!");
+             return;
         }
 
         String start = (String) startCombo.getSelectedItem();
@@ -187,13 +242,13 @@ public class BookingForm extends JPanel {
         try {
             participants = Integer.parseInt(participantsField.getText());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Jumlah peserta harus angka.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorPopup("Jumlah peserta harus angka.");
             return;
         }
 
         User user = AuthControl.getCurrentUser();
         if (user == null) {
-            JOptionPane.showMessageDialog(this, "Sesi habis, silakan login ulang.");
+            showWarningPopup("Sesi habis, silakan login ulang.");
             mainFrame.showView("Login");
             return;
         }
@@ -212,13 +267,12 @@ public class BookingForm extends JPanel {
             );
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "Pengajuan Berhasil! Menunggu persetujuan admin.");
-                mainFrame.showView("Home");
+                showSuccessPopup("Pengajuan Berhasil!", "Menunggu persetujuan admin.", () -> mainFrame.showView("Home"));
             } else {
-                JOptionPane.showMessageDialog(this, "Gagal mengajukan peminjaman. Coba lagi.", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorPopup("Gagal mengajukan peminjaman. Coba lagi.");
             }
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorPopup(e.getMessage());
         }
     }
 
@@ -273,12 +327,146 @@ public class BookingForm extends JPanel {
             }
         };
     }
-
-    private String[] generateTimeSlots(int startHour, int endHour) {
-        String[] slots = new String[endHour - startHour + 1];
-        for (int i = 0; i < slots.length; i++) {
-            slots[i] = String.format("%02d:00", startHour + i);
-        }
-        return slots;
+    
+    // Custom popup methods
+    private void showSuccessPopup(String title, String message, Runnable onClose) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), true);
+        dialog.setUndecorated(true);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1, true),
+            new EmptyBorder(30, 30, 30, 30)
+        ));
+        
+        JLabel icon = new JLabel("✅", SwingConstants.CENTER);
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 48));
+        mainPanel.add(icon, BorderLayout.NORTH);
+        
+        JPanel msgPanel = new JPanel();
+        msgPanel.setLayout(new BoxLayout(msgPanel, BoxLayout.Y_AXIS));
+        msgPanel.setBackground(Color.WHITE);
+        msgPanel.setBorder(new EmptyBorder(15, 0, 20, 0));
+        
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel msgLabel = new JLabel(message, SwingConstants.CENTER);
+        msgLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        msgLabel.setForeground(Color.GRAY);
+        msgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        msgPanel.add(titleLabel);
+        msgPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        msgPanel.add(msgLabel);
+        
+        mainPanel.add(msgPanel, BorderLayout.CENTER);
+        
+        JButton okBtn = new JButton("OK");
+        okBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        okBtn.setForeground(Color.WHITE);
+        okBtn.setBackground(new Color(46, 125, 50));
+        okBtn.setBorderPainted(false);
+        okBtn.setFocusPainted(false);
+        okBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        okBtn.setPreferredSize(new Dimension(100, 38));
+        okBtn.addActionListener(e -> {
+            dialog.dispose();
+            if (onClose != null) onClose.run();
+        });
+        
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        btnPanel.setBackground(Color.WHITE);
+        btnPanel.add(okBtn);
+        mainPanel.add(btnPanel, BorderLayout.SOUTH);
+        
+        dialog.setContentPane(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    private void showErrorPopup(String message) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), true);
+        dialog.setUndecorated(true);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1, true),
+            new EmptyBorder(30, 30, 30, 30)
+        ));
+        
+        JLabel icon = new JLabel("❌", SwingConstants.CENTER);
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 48));
+        mainPanel.add(icon, BorderLayout.NORTH);
+        
+        JLabel msgLabel = new JLabel(message, SwingConstants.CENTER);
+        msgLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        msgLabel.setBorder(new EmptyBorder(15, 0, 20, 0));
+        mainPanel.add(msgLabel, BorderLayout.CENTER);
+        
+        JButton okBtn = new JButton("OK");
+        okBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        okBtn.setForeground(Color.WHITE);
+        okBtn.setBackground(new Color(200, 60, 60));
+        okBtn.setBorderPainted(false);
+        okBtn.setFocusPainted(false);
+        okBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        okBtn.setPreferredSize(new Dimension(100, 38));
+        okBtn.addActionListener(e -> dialog.dispose());
+        
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        btnPanel.setBackground(Color.WHITE);
+        btnPanel.add(okBtn);
+        mainPanel.add(btnPanel, BorderLayout.SOUTH);
+        
+        dialog.setContentPane(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    private void showWarningPopup(String message) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), true);
+        dialog.setUndecorated(true);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1, true),
+            new EmptyBorder(30, 30, 30, 30)
+        ));
+        
+        JLabel icon = new JLabel("⚠️", SwingConstants.CENTER);
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 48));
+        mainPanel.add(icon, BorderLayout.NORTH);
+        
+        JLabel msgLabel = new JLabel(message, SwingConstants.CENTER);
+        msgLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        msgLabel.setBorder(new EmptyBorder(15, 0, 20, 0));
+        mainPanel.add(msgLabel, BorderLayout.CENTER);
+        
+        JButton okBtn = new JButton("OK");
+        okBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        okBtn.setForeground(Color.WHITE);
+        okBtn.setBackground(new Color(255, 152, 0));
+        okBtn.setBorderPainted(false);
+        okBtn.setFocusPainted(false);
+        okBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        okBtn.setPreferredSize(new Dimension(100, 38));
+        okBtn.addActionListener(e -> dialog.dispose());
+        
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        btnPanel.setBackground(Color.WHITE);
+        btnPanel.add(okBtn);
+        mainPanel.add(btnPanel, BorderLayout.SOUTH);
+        
+        dialog.setContentPane(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 }

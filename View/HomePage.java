@@ -16,132 +16,143 @@ public class HomePage extends JPanel {
     private BookingControl bookingControl;
     
     // Label dinamis untuk angka Booking Aktif
-    private JLabel activeBookingCountLabel; 
+    private JLabel activeBookingCountLabel;
+    private JLabel welcomeLabel;
+    
+    // Colors
+    private static final Color BG_COLOR = new Color(225, 255, 255);
+    private static final Color PRIMARY_BLUE = new Color(30, 60, 120);
+    private static final Color CARD_WHITE = Color.WHITE;
 
     public HomePage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.bookingControl = new BookingControl();
         
         setLayout(new BorderLayout());
-        setBackground(new Color(225, 255, 255)); // Light cyan background
+        setBackground(BG_COLOR);
 
         // --- CONTENT WRAPPER (Scrollable) ---
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBackground(new Color(225, 255, 255)); 
-        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); 
+        contentPanel.setBackground(BG_COLOR);
+        contentPanel.setBorder(new EmptyBorder(25, 20, 20, 20));
 
         // 1. HEADER (Title)
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setOpaque(false);
+        headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
         JLabel titleLabel = new JLabel("FILROOM");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
+        titleLabel.setForeground(PRIMARY_BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        contentPanel.add(titleLabel);
+        headerPanel.add(titleLabel);
 
         JLabel subtitleLabel = new JLabel("Sistem Peminjaman Ruangan");
-        subtitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        subtitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        subtitleLabel.setForeground(Color.GRAY);
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        contentPanel.add(subtitleLabel);
-
+        headerPanel.add(subtitleLabel);
+        
+        contentPanel.add(headerPanel);
         contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        
+        // Welcome Card
+        JPanel welcomeCard = createCard();
+        welcomeCard.setLayout(new BorderLayout());
+        welcomeCard.setBorder(new EmptyBorder(15, 20, 15, 20));
+        welcomeCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+        
+        welcomeLabel = new JLabel("Selamat Datang!");
+        welcomeLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        welcomeLabel.setForeground(PRIMARY_BLUE);
+        welcomeCard.add(welcomeLabel, BorderLayout.CENTER);
+        
+        JLabel waveEmoji = new JLabel("👋");
+        waveEmoji.setFont(new Font("SansSerif", Font.PLAIN, 24));
+        welcomeCard.add(waveEmoji, BorderLayout.EAST);
+        
+        contentPanel.add(welcomeCard);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
         // 2. INFO CARDS (Grid 1 baris, 2 kolom)
-        JPanel cardsPanel = new JPanel(new GridLayout(1, 2, 15, 0));
-        cardsPanel.setBackground(new Color(225, 255, 255));
+        JPanel cardsPanel = new JPanel(new GridLayout(1, 2, 12, 0));
+        cardsPanel.setOpaque(false);
         cardsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         
         // -- Card 1: Booking Aktif (Dinamis) --
-        activeBookingCountLabel = new JLabel("0"); // Default 0
-        activeBookingCountLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        activeBookingCountLabel.setForeground(new Color(30, 30, 140)); // Biru tua
+        activeBookingCountLabel = new JLabel("0");
+        activeBookingCountLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        activeBookingCountLabel.setForeground(PRIMARY_BLUE);
         
-        // Masukkan ke helper createInfoCard
-        // Parameter: Judul Baris 1, Judul Baris 2, Komponen Nilai
-        cardsPanel.add(createInfoCard("Booking", "Aktif", activeBookingCountLabel));
+        cardsPanel.add(createInfoCard("📋", "Booking Aktif", activeBookingCountLabel));
         
         // -- Card 2: Jam Operasional (Statis) --
         JLabel jamLabel = new JLabel("07:00 - 21:00");
-        jamLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        jamLabel.setForeground(Color.BLACK);
+        jamLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        jamLabel.setForeground(new Color(60, 60, 60));
         
-        cardsPanel.add(createInfoCard("Jam", "Operasional", jamLabel));
+        cardsPanel.add(createInfoCard("🕐", "Jam Operasional", jamLabel));
         
         contentPanel.add(cardsPanel);
         contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // 3. RECENT BOOKINGS TITLE
+        JPanel recentHeader = new JPanel(new BorderLayout());
+        recentHeader.setOpaque(false);
+        recentHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        
         JLabel recentLabel = new JLabel("Peminjaman Terbaru");
         recentLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        recentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        recentLabel.setForeground(new Color(50, 50, 50));
+        recentHeader.add(recentLabel, BorderLayout.WEST);
         
-        JPanel recentLabelPanel = new JPanel(new BorderLayout());
-        recentLabelPanel.setBackground(new Color(225, 255, 255));
-        recentLabelPanel.add(recentLabel, BorderLayout.WEST);
-        recentLabelPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        contentPanel.add(recentLabelPanel);
-
-        contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        contentPanel.add(recentHeader);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 12)));
 
         // 4. RECENT BOOKINGS LIST
         bookingsListPanel = new JPanel();
         bookingsListPanel.setLayout(new BoxLayout(bookingsListPanel, BoxLayout.Y_AXIS));
-        bookingsListPanel.setBackground(new Color(225, 255, 255));
+        bookingsListPanel.setOpaque(false);
         contentPanel.add(bookingsListPanel);
 
         // Masukkan contentPanel ke ScrollPane
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setBorder(null);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
         // --- BOTTOM SECTION (Button + Nav) ---
         JPanel bottomContainer = new JPanel();
         bottomContainer.setLayout(new BoxLayout(bottomContainer, BoxLayout.Y_AXIS));
-        bottomContainer.setBackground(new Color(225, 255, 255));
+        bottomContainer.setBackground(BG_COLOR);
 
         // Floating Action Button
-        JButton pinjamButton = new JButton("Pinjam Ruangan");
-        pinjamButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        JButton pinjamButton = new JButton("+ Pinjam Ruangan");
+        pinjamButton.setFont(new Font("SansSerif", Font.BOLD, 15));
         pinjamButton.setForeground(Color.WHITE);
-        pinjamButton.setBackground(new Color(30, 60, 120)); // Dark Blue
+        pinjamButton.setBackground(PRIMARY_BLUE);
         pinjamButton.setFocusPainted(false);
-        pinjamButton.setBorder(new EmptyBorder(15, 30, 15, 30));
-        pinjamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pinjamButton.setBorderPainted(false);
+        pinjamButton.setPreferredSize(new Dimension(280, 50));
         pinjamButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         pinjamButton.addActionListener(e -> mainFrame.showView("DateSelection"));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(225, 255, 255));
-        buttonPanel.setBorder(new EmptyBorder(10, 0, 10, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
         buttonPanel.add(pinjamButton);
         bottomContainer.add(buttonPanel);
 
         // Bottom Navigation
-        JPanel bottomNav = new JPanel();
-        bottomNav.setBackground(Color.WHITE);
-        bottomNav.setPreferredSize(new Dimension(getWidth(), 60));
-        bottomNav.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 15));
-        
-        JLabel homeNav = new JLabel("Home");
-        homeNav.setFont(new Font("SansSerif", Font.BOLD, 12));
-        homeNav.setForeground(new Color(30, 60, 120));
-        
-        JLabel activityNav = new JLabel("Aktivitas");
-        activityNav.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        
-        JLabel profileNav = new JLabel("Profil");
-        profileNav.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        
-        bottomNav.add(homeNav);
-        bottomNav.add(activityNav);
-        bottomNav.add(profileNav);
-        
-        bottomContainer.add(bottomNav);
+        bottomContainer.add(new BottomNavPanel(mainFrame, "Home"));
         
         add(bottomContainer, BorderLayout.SOUTH);
 
         // --- LISTENER UNTUK REFRESH DATA ---
-        // Setiap kali halaman ini muncul, refreshData() dipanggil
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
@@ -153,39 +164,48 @@ public class HomePage extends JPanel {
             public void ancestorMoved(AncestorEvent event) {}
         });
     }
+    
+    private JPanel createCard() {
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(CARD_WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            }
+        };
+        card.setOpaque(false);
+        return card;
+    }
 
-    /**
-     * Mengambil data terbaru dari database (BookingControl) 
-     * dan memperbarui tampilan UI.
-     */
     private void refreshData() {
         bookingsListPanel.removeAll();
         User user = AuthControl.getCurrentUser();
         
         if (user != null) {
+            // Update welcome label
+            welcomeLabel.setText("Selamat Datang, " + user.getName().split(" ")[0] + "!");
+            
             // A. Update List Peminjaman Terbaru
             List<String[]> bookings = bookingControl.getRecentBookings(user.getId());
             
             if (bookings.isEmpty()) {
-                JLabel emptyLabel = new JLabel("Belum ada riwayat peminjaman.");
-                emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                JPanel emptyCard = createCard();
+                emptyCard.setLayout(new GridBagLayout());
+                emptyCard.setBorder(new EmptyBorder(30, 20, 30, 20));
+                emptyCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+                
+                JLabel emptyLabel = new JLabel("Belum ada riwayat peminjaman");
                 emptyLabel.setForeground(Color.GRAY);
-                bookingsListPanel.add(emptyLabel);
+                emptyLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+                emptyCard.add(emptyLabel);
+                
+                bookingsListPanel.add(emptyCard);
             } else {
                 for (String[] b : bookings) {
-                    // b[0]=room, b[1]=date, b[2]=time, b[3]=status
-                    Color statusColor = Color.LIGHT_GRAY;
-                    String statusText = b[3];
-                    
-                    if ("Disetujui".equalsIgnoreCase(statusText)) {
-                        statusColor = new Color(144, 238, 144); // Hijau
-                    } else if ("Menunggu".equalsIgnoreCase(statusText)) {
-                        statusColor = new Color(255, 228, 181); // Kuning/Orange
-                    } else if ("Ditolak".equalsIgnoreCase(statusText)) {
-                        statusColor = new Color(255, 100, 100); // Merah
-                    }
-                    
-                    bookingsListPanel.add(createBookingItem(b[0], b[1], b[2], statusText, statusColor));
+                    bookingsListPanel.add(createBookingItem(b[0], b[1], b[2], b[3]));
                     bookingsListPanel.add(Box.createRigidArea(new Dimension(0, 10)));
                 }
             }
@@ -199,98 +219,99 @@ public class HomePage extends JPanel {
         bookingsListPanel.repaint();
     }
 
-    /**
-     * Helper untuk membuat Card Info (Booking Aktif & Jam Ops)
-     */
-    private JPanel createInfoCard(String title1, String title2, Component valueComponent) {
-        JPanel card = new JPanel();
+    private JPanel createInfoCard(String icon, String title, JLabel valueLabel) {
+        JPanel card = createCard();
         card.setLayout(new BorderLayout());
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+        card.setBorder(new EmptyBorder(15, 15, 15, 15));
 
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        card.add(iconLabel, BorderLayout.WEST);
+        
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setBackground(Color.WHITE);
+        textPanel.setOpaque(false);
+        textPanel.setBorder(new EmptyBorder(0, 12, 0, 0));
         
-        JLabel t1 = new JLabel(title1);
-        JLabel t2 = new JLabel(title2);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        titleLabel.setForeground(Color.GRAY);
         
-        t1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        t2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        t1.setForeground(Color.GRAY);
-        t2.setForeground(Color.GRAY);
-        
-        textPanel.add(t1);
-        textPanel.add(t2);
-        textPanel.add(Box.createRigidArea(new Dimension(0, 8))); // Jarak antara judul dan nilai
-        
-        // Menambahkan komponen nilai (Angka/Jam)
-        textPanel.add(valueComponent);
+        textPanel.add(titleLabel);
+        textPanel.add(Box.createRigidArea(new Dimension(0, 4)));
+        textPanel.add(valueLabel);
         
         card.add(textPanel, BorderLayout.CENTER);
-        
-        // Icon placeholder di sebelah kiri
-        // JPanel icon = new JPanel();
-        // icon.setPreferredSize(new Dimension(40, 40));
-        // icon.setBackground(new Color(240, 240, 255)); // Ungu sangat muda
-        // // Bisa ditambahkan JLabel gambar icon di sini jika ada
-        
-        // card.add(icon, BorderLayout.WEST);
         
         return card;
     }
 
-    /**
-     * Helper untuk membuat Item List Peminjaman
-     */
-    private JPanel createBookingItem(String roomName, String date, String time, String status, Color statusColor) {
-        JPanel item = new JPanel();
-        item.setLayout(new BorderLayout());
-        item.setBackground(Color.WHITE);
-        item.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                new EmptyBorder(10, 15, 10, 15)));
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+    private JPanel createBookingItem(String roomName, String date, String time, String status) {
+        JPanel card = createCard();
+        card.setLayout(new BorderLayout());
+        card.setBorder(new EmptyBorder(12, 15, 12, 15));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85));
 
-        // Kiri: Info Ruangan
+        // Left: Info
         JPanel left = new JPanel();
         left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
-        left.setBackground(Color.WHITE);
+        left.setOpaque(false);
         
         JLabel name = new JLabel(roomName);
         name.setFont(new Font("SansSerif", Font.BOLD, 14));
+        name.setForeground(new Color(40, 40, 40));
         
-        JLabel d = new JLabel(date);
+        JLabel d = new JLabel("📅 " + date);
         d.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        d.setForeground(Color.DARK_GRAY);
+        d.setForeground(Color.GRAY);
         
-        JLabel t = new JLabel(time);
+        JLabel t = new JLabel("🕐 " + time);
         t.setFont(new Font("SansSerif", Font.PLAIN, 12));
         t.setForeground(Color.GRAY);
         
         left.add(name);
-        left.add(Box.createRigidArea(new Dimension(0, 2)));
+        left.add(Box.createRigidArea(new Dimension(0, 4)));
         left.add(d);
         left.add(t);
         
-        item.add(left, BorderLayout.CENTER);
+        card.add(left, BorderLayout.CENTER);
         
-        // Kanan: Status Badge
-        JLabel statusLabel = new JLabel(status);
-        statusLabel.setOpaque(true);
+        // Right: Status Badge
+        Color statusColor = new Color(180, 180, 180);
+        Color textColor = Color.WHITE;
+        
+        if ("Disetujui".equalsIgnoreCase(status)) {
+            statusColor = new Color(76, 175, 80);
+        } else if ("Menunggu".equalsIgnoreCase(status)) {
+            statusColor = new Color(255, 152, 0);
+        } else if ("Ditolak".equalsIgnoreCase(status)) {
+            statusColor = new Color(244, 67, 54);
+        } else if ("Selesai".equalsIgnoreCase(status)) {
+            statusColor = new Color(96, 125, 139);
+        }
+        
+        JLabel statusLabel = new JLabel(status) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                super.paintComponent(g);
+            }
+        };
+        statusLabel.setOpaque(false);
         statusLabel.setBackground(statusColor);
-        statusLabel.setBorder(new EmptyBorder(5, 10, 5, 10)); // Padding dalam badge
+        statusLabel.setForeground(textColor);
+        statusLabel.setBorder(new EmptyBorder(5, 10, 5, 10));
         statusLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
         
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        right.setBackground(Color.WHITE);
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        right.setOpaque(false);
         right.add(statusLabel);
         
-        item.add(right, BorderLayout.EAST);
+        card.add(right, BorderLayout.EAST);
         
-        return item;
+        return card;
     }
 }

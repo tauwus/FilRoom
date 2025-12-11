@@ -12,6 +12,10 @@ public class AuthControl {
     public static void destroySession() {
         currentUser = null;
     }
+    
+    public static void logout() {
+        destroySession();
+    }
 
     public static boolean isLoggedIn() {
         return currentUser != null;

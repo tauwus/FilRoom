@@ -27,76 +27,85 @@ public class RoomListPage extends JPanel {
     private LocalDate selectedDate = LocalDate.now();
     private JPanel datePanel;
 
+    // Colors
+    private static final Color BG_COLOR = new Color(225, 255, 255);
+    private static final Color PRIMARY_BLUE = new Color(30, 60, 120);
+
     public RoomListPage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.roomControl = new RoomControl();
         
         setLayout(new BorderLayout());
-        setBackground(new Color(225, 255, 255));
+        setBackground(BG_COLOR);
 
+        // Header
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(225, 255, 255));
+        header.setBackground(BG_COLOR);
         header.setBorder(new EmptyBorder(15, 15, 5, 15));
         
-        JButton backBtn = new JButton("← Daftar Ruangan");
-        backBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        titleRow.setBackground(BG_COLOR);
+        
+        JButton backBtn = new JButton("←");
+        backBtn.setFont(new Font("SansSerif", Font.BOLD, 18));
         backBtn.setBorderPainted(false);
         backBtn.setContentAreaFilled(false);
         backBtn.setFocusPainted(false);
-        backBtn.setHorizontalAlignment(SwingConstants.LEFT);
+        backBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         backBtn.addActionListener(e -> mainFrame.showView("DateSelection"));
-        header.add(backBtn, BorderLayout.NORTH);
+        titleRow.add(backBtn);
+        
+        JLabel titleLabel = new JLabel("Daftar Ruangan");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        titleLabel.setForeground(PRIMARY_BLUE);
+        titleRow.add(titleLabel);
+        
+        header.add(titleRow, BorderLayout.NORTH);
         
         JLabel subTitle = new JLabel("Pilih ruangan yang ingin dipinjam");
         subTitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        subTitle.setBorder(new EmptyBorder(5, 10, 0, 0));
+        subTitle.setForeground(Color.GRAY);
+        subTitle.setBorder(new EmptyBorder(5, 30, 0, 0));
         header.add(subTitle, BorderLayout.CENTER);
         
         add(header, BorderLayout.NORTH);
 
-        JPanel contentWrapper = new ScrollablePanel();
+        // Content Wrapper
+        JPanel contentWrapper = new JPanel();
         contentWrapper.setLayout(new BoxLayout(contentWrapper, BoxLayout.Y_AXIS));
-        contentWrapper.setBackground(new Color(225, 255, 255));
-        contentWrapper.setBorder(new EmptyBorder(0, 0, 20, 0));
+        contentWrapper.setBackground(BG_COLOR);
+        contentWrapper.setBorder(new EmptyBorder(10, 15, 20, 15));
 
-        JPanel dateContainer = new JPanel(new BorderLayout());
-        dateContainer.setBackground(new Color(225, 255, 255));
-        dateContainer.setBorder(new EmptyBorder(5, 0, 10, 0));
-        dateContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        
-        datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        datePanel.setBackground(new Color(225, 255, 255));
+        // Date Strip
+        datePanel = new JPanel(new GridLayout(1, 4, 8, 0));
+        datePanel.setBackground(BG_COLOR);
+        datePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        datePanel.setBorder(new EmptyBorder(0, 0, 15, 0));
         updateDateStrip();
-        
-        JScrollPane dateScrollPane = new JScrollPane(datePanel);
-        dateScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        dateScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        dateScrollPane.setBorder(null);
-        dateScrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
-        
-        dateContainer.add(dateScrollPane, BorderLayout.CENTER);
-        contentWrapper.add(dateContainer);
+        contentWrapper.add(datePanel);
 
-        JPanel controlsPanel = new JPanel();
-        controlsPanel.setLayout(new BoxLayout(controlsPanel, BoxLayout.Y_AXIS));
-        controlsPanel.setBackground(new Color(225, 255, 255));
-        controlsPanel.setBorder(new EmptyBorder(0, 20, 0, 20));
-
+        // Search Field
         JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.setBackground(new Color(240, 240, 240));
-        searchPanel.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
-        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        searchPanel.setBackground(Color.WHITE);
+        searchPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(220, 220, 220), 1, true),
+            new EmptyBorder(8, 12, 8, 12)
+        ));
+        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         
-        searchField = new JTextField("Cari Ruangan...");
+        JLabel searchIcon = new JLabel("🔍");
+        searchIcon.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        searchPanel.add(searchIcon, BorderLayout.WEST);
+        
+        searchField = new JTextField("  Cari Ruangan...");
         searchField.setForeground(Color.GRAY);
-        searchField.setBorder(new EmptyBorder(5, 10, 5, 10));
-        searchField.setBackground(new Color(240, 240, 240));
-        searchField.setOpaque(true);
+        searchField.setBorder(null);
+        searchField.setFont(new Font("SansSerif", Font.PLAIN, 14));
         
-        searchField.addFocusListener(new FocusListener() {
+        searchField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (searchField.getText().equals("Cari Ruangan...")) {
+                if (searchField.getText().trim().equals("Cari Ruangan...")) {
                     searchField.setText("");
                     searchField.setForeground(Color.BLACK);
                 }
@@ -104,7 +113,7 @@ public class RoomListPage extends JPanel {
             @Override
             public void focusLost(FocusEvent e) {
                 if (searchField.getText().isEmpty()) {
-                    searchField.setText("Cari Ruangan...");
+                    searchField.setText("  Cari Ruangan...");
                     searchField.setForeground(Color.GRAY);
                 }
             }
@@ -116,45 +125,37 @@ public class RoomListPage extends JPanel {
             public void changedUpdate(DocumentEvent e) { filterRooms(); }
         });
         
-        JLabel searchIcon = new JLabel("🔍");
-        searchIcon.setBorder(new EmptyBorder(0, 10, 0, 0));
-        
-        searchPanel.add(searchIcon, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
-        
-        controlsPanel.add(searchPanel);
-        controlsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        contentWrapper.add(searchPanel);
+        contentWrapper.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        JPanel filterPanel = new JPanel(new GridLayout(1, 1));
-        filterPanel.setBackground(new Color(225, 255, 255));
-        filterPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        
+        // Building Filter
         buildingFilter = new JComboBox<>(new String[]{"Semua Gedung", "Gedung F", "Gedung G"});
+        buildingFilter.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        buildingFilter.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        buildingFilter.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
         buildingFilter.addActionListener(e -> filterRooms());
-        
-        filterPanel.add(buildingFilter);
-        
-        controlsPanel.add(filterPanel);
-        controlsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        
-        contentWrapper.add(controlsPanel);
+        contentWrapper.add(buildingFilter);
+        contentWrapper.add(Box.createRigidArea(new Dimension(0, 15)));
 
+        // Room List
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setBackground(new Color(225, 255, 255));
-        listPanel.setBorder(new EmptyBorder(0, 20, 0, 20));
-        
+        listPanel.setBackground(BG_COLOR);
         contentWrapper.add(listPanel);
 
-        JScrollPane mainScrollPane = new JScrollPane(contentWrapper);
-        mainScrollPane.setBorder(null);
-        mainScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        add(mainScrollPane, BorderLayout.CENTER);
+        // Scroll Pane
+        JScrollPane scrollPane = new JScrollPane(contentWrapper);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
 
+        // Listener to refresh when shown
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
+                updateDateStrip();
                 loadRooms();
             }
             @Override
@@ -163,63 +164,55 @@ public class RoomListPage extends JPanel {
             public void ancestorMoved(AncestorEvent event) {}
         });
     }
-
-    private class ScrollablePanel extends JPanel implements Scrollable {
-        @Override
-        public Dimension getPreferredScrollableViewportSize() {
-            return getPreferredSize();
+    
+    public void setDate(LocalDate date) {
+        this.selectedDate = date;
+        if (this.selectedDate.isBefore(LocalDate.now())) {
+            this.selectedDate = LocalDate.now();
         }
-        @Override
-        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
-            return 16;
-        }
-        @Override
-        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-            return 16;
-        }
-        @Override
-        public boolean getScrollableTracksViewportWidth() {
-            return true;
-        }
-        @Override
-        public boolean getScrollableTracksViewportHeight() {
-            return false;
-        }
+        updateDateStrip();
+        loadRooms();
     }
 
     private void updateDateStrip() {
         datePanel.removeAll();
-        LocalDate startDate = LocalDate.now();
-        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEE", Locale.forLanguageTag("id-ID"));
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM", Locale.forLanguageTag("id-ID"));
+        LocalDate startDate = selectedDate;
+        
+        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEE", new Locale("id", "ID"));
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM", new Locale("id", "ID"));
 
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 4; i++) {
             LocalDate date = startDate.plusDays(i);
-            boolean isSelected = date.equals(selectedDate);
+            boolean isSelected = (i == 0); // First one is selected
             
-            JPanel dateItem = new JPanel(new BorderLayout());
-            dateItem.setPreferredSize(new Dimension(80, 60));
-            dateItem.setBackground(isSelected ? new Color(50, 80, 160) : Color.WHITE);
-            dateItem.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
-            dateItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            JPanel dateItem = new JPanel();
+            dateItem.setLayout(new BoxLayout(dateItem, BoxLayout.Y_AXIS));
+            dateItem.setBackground(isSelected ? PRIMARY_BLUE : Color.WHITE);
+            dateItem.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(isSelected ? PRIMARY_BLUE : new Color(220, 220, 220), 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+            ));
+            dateItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
-            JLabel dayLabel = new JLabel(date.format(dayFormatter));
-            dayLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            JLabel dayLabel = new JLabel(capitalize(date.format(dayFormatter)), SwingConstants.CENTER);
             dayLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
             dayLabel.setForeground(isSelected ? Color.WHITE : Color.GRAY);
+            dayLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
-            JLabel dateLabel = new JLabel(date.format(dateFormatter));
-            dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            JLabel dateLabel = new JLabel(date.format(dateFormatter), SwingConstants.CENTER);
             dateLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
             dateLabel.setForeground(isSelected ? Color.WHITE : Color.BLACK);
+            dateLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
-            dateItem.add(dayLabel, BorderLayout.NORTH);
-            dateItem.add(dateLabel, BorderLayout.CENTER);
+            dateItem.add(dayLabel);
+            dateItem.add(Box.createRigidArea(new Dimension(0, 3)));
+            dateItem.add(dateLabel);
             
+            final LocalDate clickDate = date;
             dateItem.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    selectedDate = date;
+                    selectedDate = clickDate;
                     updateDateStrip();
                     datePanel.revalidate();
                     datePanel.repaint();
@@ -228,6 +221,14 @@ public class RoomListPage extends JPanel {
             
             datePanel.add(dateItem);
         }
+        
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+    
+    private String capitalize(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
     private void loadRooms() {
@@ -237,7 +238,7 @@ public class RoomListPage extends JPanel {
 
     private void filterRooms() {
         listPanel.removeAll();
-        String searchText = searchField.getText();
+        String searchText = searchField.getText().trim();
         if (searchText.equals("Cari Ruangan...")) searchText = "";
         searchText = searchText.toLowerCase();
         
@@ -250,7 +251,7 @@ public class RoomListPage extends JPanel {
             
             if (matchesSearch && matchesBuilding) {
                 listPanel.add(createRoomCard(room));
-                listPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+                listPanel.add(Box.createRigidArea(new Dimension(0, 12)));
             }
         }
         
@@ -263,47 +264,55 @@ public class RoomListPage extends JPanel {
         card.setLayout(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(200, 200, 200), 1, true),
+            new LineBorder(new Color(220, 220, 220), 1, true),
             new EmptyBorder(15, 15, 15, 15)
         ));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Color.WHITE);
-        
-        JPanel titlePanel = new JPanel(new GridLayout(2, 1));
-        titlePanel.setBackground(Color.WHITE);
+        // Top - Room Info
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
         
         JLabel nameLabel = new JLabel(room.getName());
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        nameLabel.setForeground(PRIMARY_BLUE);
         
         JLabel locLabel = new JLabel(room.getLocation());
         locLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         locLabel.setForeground(Color.GRAY);
         
-        titlePanel.add(nameLabel);
-        titlePanel.add(locLabel);
+        infoPanel.add(nameLabel);
+        infoPanel.add(Box.createRigidArea(new Dimension(0, 3)));
+        infoPanel.add(locLabel);
         
-        header.add(titlePanel, BorderLayout.CENTER);
+        card.add(infoPanel, BorderLayout.NORTH);
         
-        card.add(header, BorderLayout.NORTH);
+        // Center - Capacity
+        JPanel capacityPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+        capacityPanel.setBackground(Color.WHITE);
         
-        JPanel body = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        body.setBackground(Color.WHITE);
-        body.setBorder(new EmptyBorder(10, 0, 10, 0));
+        JLabel capIcon = new JLabel("👥");
+        capIcon.setFont(new Font("SansSerif", Font.PLAIN, 14));
         
-        JLabel capLabel = new JLabel("👥 Kapasitas: " + room.getCapacity() + " orang");
-        capLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        body.add(capLabel);
+        JLabel capLabel = new JLabel(" Kapasitas: " + room.getCapacity() + " orang");
+        capLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        capLabel.setForeground(new Color(80, 80, 80));
         
-        card.add(body, BorderLayout.CENTER);
+        capacityPanel.add(capIcon);
+        capacityPanel.add(capLabel);
         
+        card.add(capacityPanel, BorderLayout.CENTER);
+        
+        // Bottom - Button
         JButton selectBtn = new JButton("Pilih Ruangan");
-        selectBtn.setBackground(new Color(50, 80, 160));
-        selectBtn.setForeground(Color.WHITE);
-        selectBtn.setFocusPainted(false);
         selectBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        selectBtn.setPreferredSize(new Dimension(100, 40));
+        selectBtn.setForeground(Color.WHITE);
+        selectBtn.setBackground(PRIMARY_BLUE);
+        selectBtn.setBorderPainted(false);
+        selectBtn.setFocusPainted(false);
+        selectBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        selectBtn.setPreferredSize(new Dimension(0, 42));
         
         selectBtn.addActionListener(e -> {
             BookingForm bookingForm = (BookingForm) mainFrame.getView("BookingForm");

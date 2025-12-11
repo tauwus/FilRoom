@@ -10,7 +10,7 @@ public enum BookingStatus {
     @Override
     public String toString() {
         switch (this) {
-            case MENUNGGU_PERSETUJUAN: return "Menunggu Persetujuan";
+            case MENUNGGU_PERSETUJUAN: return "Menunggu";
             case DISETUJUI: return "Disetujui";
             case DITOLAK: return "Ditolak";
             case DIBATALKAN: return "Dibatalkan";

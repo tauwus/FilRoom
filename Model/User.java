@@ -13,9 +13,18 @@ public abstract class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }
 
     public abstract String getRole();
+
+    @Override
+    public String toString() {
+        return name + " (" + getRole() + ")";
+    }
 }

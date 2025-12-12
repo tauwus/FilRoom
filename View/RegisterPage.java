@@ -67,16 +67,21 @@ public class RegisterPage extends JPanel {
             String pass = new String(passwordField.getPassword());
             if(pass.equals("Kata Sandi")) pass = "";
 
-            if(nama.isEmpty() || nim.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Mohon isi semua data!", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                String result = registerControl.registerUser(nim, nama, email, pass);
-                if(result.equals("SUCCESS")) {
+            try {
+                // Validasi dan registrasi dilakukan di Controller
+                boolean success = registerControl.registerUser(nim, nama, email, pass);
+                if (success) {
                     JOptionPane.showMessageDialog(this, "Registrasi Berhasil! Silakan Login.");
                     mainFrame.showView("Login");
                 } else {
-                    JOptionPane.showMessageDialog(this, result, "Gagal", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Registrasi gagal. Coba lagi.", "Gagal", JOptionPane.ERROR_MESSAGE);
                 }
+            } catch (IllegalArgumentException ex) {
+                // Error validasi dari Controller
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Validasi Error", JOptionPane.WARNING_MESSAGE);
+            } catch (java.sql.SQLException ex) {
+                // Error database
+                JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         centerPanel.add(registerButton);

@@ -2,30 +2,14 @@ package Controller;
 
 import Model.Room;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AdminRoomControl {
     
-    public List<Room> getAllRooms() {
-        List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            while (rs.next()) {
-                rooms.add(new Room(
-                    rs.getInt("room_id"),
-                    rs.getString("nama_ruangan"),
-                    rs.getString("lokasi"),
-                    rs.getInt("kapasitas")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rooms;
+    // Menggunakan RoomControl untuk getAllRooms (menghindari duplikasi)
+    private RoomControl roomControl = new RoomControl();
+    
+    public java.util.List<Room> getAllRooms() {
+        return roomControl.getAllRooms();
     }
 
     public boolean addRoom(String name, String location, int capacity) {

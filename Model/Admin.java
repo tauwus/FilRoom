@@ -12,8 +12,17 @@ public class Admin extends User {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public String getRole() {
         return "ADMIN";
+    }
+
+    @Override
+    public String toString() {
+        return getName() + " (@" + username + ")";
     }
 }

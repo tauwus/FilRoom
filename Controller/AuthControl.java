@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Admin;
 import Model.User;
 
 public class AuthControl {
@@ -23,5 +24,12 @@ public class AuthControl {
 
     public static User getCurrentUser() {
         return currentUser;
+    }
+    
+    public static Admin getCurrentAdmin() {
+        if (currentUser instanceof Admin) {
+            return (Admin) currentUser;
+        }
+        return null;
     }
 }

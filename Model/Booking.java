@@ -52,4 +52,9 @@ public class Booking {
     
     public BookingItem getBookingItem() { return bookingItem; }
     public void setBookingItem(BookingItem bookingItem) { this.bookingItem = bookingItem; }
+
+    @Override
+    public String toString() {
+        return "Booking #" + id + " - " + activityDescription + " (" + status + ")";
+    }
 }

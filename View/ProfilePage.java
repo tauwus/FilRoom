@@ -2,6 +2,7 @@ package View;
 
 import Controller.AuthControl;
 import Controller.BookingControl;
+import Controller.UserControl;
 import Model.CivitasAkademik;
 import Model.User;
 import java.awt.*;
@@ -15,6 +16,7 @@ import javax.swing.event.AncestorListener;
 public class ProfilePage extends JPanel {
     private MainFrame mainFrame;
     private BookingControl bookingControl;
+    private UserControl userControl;
     
     // UI Components to update
     private JLabel nameLabel;
@@ -31,6 +33,7 @@ public class ProfilePage extends JPanel {
     public ProfilePage(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.bookingControl = new BookingControl();
+        this.userControl = new UserControl();
         
         setLayout(new BorderLayout());
         setBackground(new Color(225, 255, 255)); // Light cyan background
@@ -140,6 +143,36 @@ public class ProfilePage extends JPanel {
         
         nimField = new JTextField();
         infoPanel.add(createReadOnlyField("NIM", nimField));
+        infoPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        // Edit Profile Button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JButton editProfileBtn = new JButton("✏️ Edit Profil");
+        editProfileBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        editProfileBtn.setForeground(Color.WHITE);
+        editProfileBtn.setBackground(new Color(37, 99, 235));
+        editProfileBtn.setFocusPainted(false);
+        editProfileBtn.setBorderPainted(false);
+        editProfileBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        editProfileBtn.setPreferredSize(new Dimension(130, 35));
+        editProfileBtn.addActionListener(e -> showEditProfileDialog());
+        
+        JButton changePassBtn = new JButton("🔒 Ganti Password");
+        changePassBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        changePassBtn.setForeground(Color.WHITE);
+        changePassBtn.setBackground(new Color(249, 115, 22));
+        changePassBtn.setFocusPainted(false);
+        changePassBtn.setBorderPainted(false);
+        changePassBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        changePassBtn.setPreferredSize(new Dimension(160, 35));
+        changePassBtn.addActionListener(e -> showChangePasswordDialog());
+        
+        buttonPanel.add(editProfileBtn);
+        buttonPanel.add(changePassBtn);
+        infoPanel.add(buttonPanel);
 
         contentPanel.add(infoPanel);
         contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -375,6 +408,102 @@ public class ProfilePage extends JPanel {
         panel.add(toggle, BorderLayout.EAST);
 
         return panel;
+    }
+
+    private void showEditProfileDialog() {
+        User currentUser = AuthControl.getCurrentUser();
+        if (!(currentUser instanceof CivitasAkademik)) {
+            JOptionPane.showMessageDialog(this, "Hanya Civitas Akademik yang dapat edit profil", 
+                "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        CivitasAkademik civitas = (CivitasAkademik) currentUser;
+        
+        JTextField editNameField = new JTextField(civitas.getName(), 25);
+        JTextField editEmailField = new JTextField(civitas.getEmail(), 25);
+        JTextField editPhoneField = new JTextField(civitas.getNoTelepon(), 20);
+        
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        panel.add(new JLabel("Nama Lengkap:"));
+        panel.add(editNameField);
+        panel.add(new JLabel("Email:"));
+        panel.add(editEmailField);
+        panel.add(new JLabel("No. Telepon:"));
+        panel.add(editPhoneField);
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, 
+            "Edit Profil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String newName = editNameField.getText().trim();
+            String newEmail = editEmailField.getText().trim();
+            String newPhone = editPhoneField.getText().trim();
+            
+            try {
+                userControl.updateProfile(civitas.getId(), newName, newEmail, newPhone);
+                // Update local object
+                civitas.setName(newName);
+                civitas.setEmail(newEmail);
+                civitas.setNoTelepon(newPhone);
+                refreshProfile();
+                JOptionPane.showMessageDialog(this, "Profil berhasil diupdate!", 
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Gagal update profil: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void showChangePasswordDialog() {
+        User currentUser = AuthControl.getCurrentUser();
+        if (currentUser == null) return;
+        
+        JPasswordField currentPassField = new JPasswordField(20);
+        JPasswordField newPassField = new JPasswordField(20);
+        JPasswordField confirmPassField = new JPasswordField(20);
+        
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        panel.add(new JLabel("Password Saat Ini:"));
+        panel.add(currentPassField);
+        panel.add(new JLabel("Password Baru:"));
+        panel.add(newPassField);
+        panel.add(new JLabel("Konfirmasi Password:"));
+        panel.add(confirmPassField);
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, 
+            "Ganti Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String currentPass = new String(currentPassField.getPassword());
+            String newPass = new String(newPassField.getPassword());
+            String confirmPass = new String(confirmPassField.getPassword());
+            
+            if (!newPass.equals(confirmPass)) {
+                JOptionPane.showMessageDialog(this, "Password baru tidak sama dengan konfirmasi", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (newPass.length() < 6) {
+                JOptionPane.showMessageDialog(this, "Password minimal 6 karakter", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            try {
+                userControl.updatePassword(currentUser.getId(), currentPass, newPass);
+                JOptionPane.showMessageDialog(this, "Password berhasil diubah!", 
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Gagal ubah password: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void showLogoutConfirmation() {

@@ -20,4 +20,9 @@ public class Room {
     public void setLocation(String location) { this.location = location; }
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
+
+    @Override
+    public String toString() {
+        return name + " (" + location + ", Kapasitas: " + capacity + ")";
+    }
 }

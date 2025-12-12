@@ -67,29 +67,33 @@ public class LoginPage extends JPanel {
         JButton loginButton = new JButton("Masuk");
         styleButton(loginButton);
         
-        // --- LOGIKA LOGIN DI SINI ---
+        // --- LOGIKA LOGIN ---
         loginButton.addActionListener(e -> {
             String id = getRealText(emailField, "Email atau NIM atau NIP");
             String pass = new String(passwordField.getPassword());
             if(pass.equals("Kata Sandi")) pass = "";
 
-            if (id.isEmpty() || pass.isEmpty()) {
-                 JOptionPane.showMessageDialog(this, "Harap isi kredensial.", "Warning", JOptionPane.WARNING_MESSAGE);
-                 return;
-            }
-
-            if (loginControl.login(id, pass)) {
-                User user = AuthControl.getCurrentUser();
-                JOptionPane.showMessageDialog(this, "Selamat datang, " + user.getName());
-                
-                // Arahkan user tergantung Role
-                if (user.getRole().equals("ADMIN")) {
-                    mainFrame.showView("Dashboard"); // AdminDashboard
+            try {
+                // Validasi dan login dilakukan di Controller
+                if (loginControl.login(id, pass)) {
+                    User user = AuthControl.getCurrentUser();
+                    JOptionPane.showMessageDialog(this, "Selamat datang, " + user.getName());
+                    
+                    // Arahkan user tergantung Role
+                    if (user.getRole().equals("ADMIN")) {
+                        mainFrame.showView("Dashboard"); // AdminDashboard
+                    } else {
+                        mainFrame.showView("Home"); // User Home Page
+                    }
                 } else {
-                    mainFrame.showView("Home"); // User Home Page
+                    JOptionPane.showMessageDialog(this, "Login Gagal. Cek username/password.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Login Gagal. Cek username/password.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                // Error validasi dari Controller
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Validasi Error", JOptionPane.WARNING_MESSAGE);
+            } catch (SecurityException ex) {
+                // Akun dinonaktifkan/dibekukan
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Akses Ditolak", JOptionPane.ERROR_MESSAGE);
             }
         });
         centerPanel.add(loginButton);

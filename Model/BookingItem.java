@@ -26,4 +26,18 @@ public class BookingItem {
     public Date getUsageDate() { return usageDate; }
     public Time getStartTime() { return startTime; }
     public Time getEndTime() { return endTime; }
+
+    /**
+     * Format waktu peminjaman sebagai String
+     */
+    public String getTimeRange() {
+        String start = startTime.toString().substring(0, 5);
+        String end = endTime.toString().substring(0, 5);
+        return start + " - " + end;
+    }
+
+    @Override
+    public String toString() {
+        return room.getName() + " (" + usageDate + ", " + getTimeRange() + ")";
+    }
 }

@@ -1,7 +1,7 @@
 package Controller;
 
-import Model.CivitasAkademik;
 import Model.AccountStatus;
+import Model.CivitasAkademik;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +20,7 @@ public class AdminUserControl {
      */
     public List<CivitasAkademik> getAllUsers() {
         List<CivitasAkademik> users = new ArrayList<>();
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, no_telepon, status_akun FROM civitas_akademik ORDER BY nama_lengkap";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun FROM civitas_akademik ORDER BY nama_lengkap";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -32,7 +32,6 @@ public class AdminUserControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 ));
             }
@@ -47,7 +46,7 @@ public class AdminUserControl {
      */
     public List<CivitasAkademik> getUsersByStatus(AccountStatus status) {
         List<CivitasAkademik> users = new ArrayList<>();
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, no_telepon, status_akun FROM civitas_akademik WHERE status_akun = ? ORDER BY nama_lengkap";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun FROM civitas_akademik WHERE status_akun = ? ORDER BY nama_lengkap";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -61,7 +60,6 @@ public class AdminUserControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 ));
             }

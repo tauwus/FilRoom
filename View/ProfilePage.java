@@ -25,7 +25,6 @@ public class ProfilePage extends JPanel {
     
     private JTextField fullNameField;
     private JTextField emailField;
-    private JTextField phoneField;
     private JTextField nimField;
     
     private JPanel statsGrid;
@@ -135,10 +134,6 @@ public class ProfilePage extends JPanel {
         
         emailField = new JTextField();
         infoPanel.add(createReadOnlyField("Email", emailField));
-        infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        
-        phoneField = new JTextField();
-        infoPanel.add(createReadOnlyField("No. Telepon", phoneField));
         infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         
         nimField = new JTextField();
@@ -256,12 +251,10 @@ public class ProfilePage extends JPanel {
                 CivitasAkademik civitas = (CivitasAkademik) currentUser;
                 nimLabel.setText(civitas.getNim());
                 emailField.setText(civitas.getEmail());
-                phoneField.setText(civitas.getNoTelepon());
                 nimField.setText(civitas.getNim());
             } else {
                 nimLabel.setText("-");
                 emailField.setText("-");
-                phoneField.setText("-");
                 nimField.setText("-");
             }
             
@@ -271,7 +264,6 @@ public class ProfilePage extends JPanel {
             nimLabel.setText("-");
             fullNameField.setText("-");
             emailField.setText("-");
-            phoneField.setText("-");
             nimField.setText("-");
             updateStats(0);
         }
@@ -422,15 +414,12 @@ public class ProfilePage extends JPanel {
         
         JTextField editNameField = new JTextField(civitas.getName(), 25);
         JTextField editEmailField = new JTextField(civitas.getEmail(), 25);
-        JTextField editPhoneField = new JTextField(civitas.getNoTelepon(), 20);
         
-        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
         panel.add(new JLabel("Nama Lengkap:"));
         panel.add(editNameField);
         panel.add(new JLabel("Email:"));
         panel.add(editEmailField);
-        panel.add(new JLabel("No. Telepon:"));
-        panel.add(editPhoneField);
         
         int result = JOptionPane.showConfirmDialog(this, panel, 
             "Edit Profil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -438,14 +427,12 @@ public class ProfilePage extends JPanel {
         if (result == JOptionPane.OK_OPTION) {
             String newName = editNameField.getText().trim();
             String newEmail = editEmailField.getText().trim();
-            String newPhone = editPhoneField.getText().trim();
             
             try {
-                userControl.updateProfile(civitas.getId(), newName, newEmail, newPhone);
+                userControl.updateProfile(civitas.getId(), newName, newEmail);
                 // Update local object
                 civitas.setName(newName);
                 civitas.setEmail(newEmail);
-                civitas.setNoTelepon(newPhone);
                 refreshProfile();
                 JOptionPane.showMessageDialog(this, "Profil berhasil diupdate!", 
                     "Sukses", JOptionPane.INFORMATION_MESSAGE);

@@ -10,7 +10,7 @@ public class AdminBookingControl {
     public List<Booking> getPendingBookings() {
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.booking_id, b.tanggal_pengajuan, b.keterangan_kegiatan, b.status_peminjaman, " +
-                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.no_telepon, u.status_akun, " +
+                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun, " +
                      "bd.room_id, r.nama_ruangan, bd.tanggal_pemakaian, bd.waktu_mulai, bd.waktu_selesai " +
                      "FROM bookings b " +
                      "JOIN civitas_akademik u ON b.user_id = u.user_id " +
@@ -29,7 +29,6 @@ public class AdminBookingControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 );
                 
@@ -65,7 +64,7 @@ public class AdminBookingControl {
     public List<Booking> getAllBookings() {
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.booking_id, b.tanggal_pengajuan, b.keterangan_kegiatan, b.status_peminjaman, " +
-                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.no_telepon, u.status_akun " +
+                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun " +
                      "FROM bookings b " +
                      "JOIN civitas_akademik u ON b.user_id = u.user_id " +
                      "ORDER BY b.tanggal_pengajuan DESC";
@@ -80,7 +79,6 @@ public class AdminBookingControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 );
                 

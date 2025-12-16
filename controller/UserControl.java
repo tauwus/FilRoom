@@ -16,7 +16,7 @@ public class UserControl {
      * Mendapatkan data user berdasarkan ID
      */
     public CivitasAkademik getUserById(int userId) {
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, no_telepon, status_akun FROM civitas_akademik WHERE user_id = ?";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun FROM civitas_akademik WHERE user_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -30,7 +30,6 @@ public class UserControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("no_telepon"),
                     rs.getString("status_akun")
                 );
             }
@@ -41,9 +40,9 @@ public class UserControl {
     }
 
     /**
-     * Update profil user (nama, email, no telepon)
+     * Update profil user (nama, email)
      */
-    public boolean updateProfile(int userId, String nama, String email, String noTelepon) 
+    public boolean updateProfile(int userId, String nama, String email) 
             throws IllegalArgumentException {
         
         // Validasi
@@ -54,15 +53,14 @@ public class UserControl {
             throw new IllegalArgumentException("Email tidak valid!");
         }
         
-        String sql = "UPDATE civitas_akademik SET nama_lengkap = ?, email = ?, no_telepon = ? WHERE user_id = ?";
+        String sql = "UPDATE civitas_akademik SET nama_lengkap = ?, email = ? WHERE user_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, nama.trim());
             stmt.setString(2, email.trim().toLowerCase());
-            stmt.setString(3, noTelepon != null ? noTelepon.trim() : "-");
-            stmt.setInt(4, userId);
+            stmt.setInt(3, userId);
             
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

@@ -92,8 +92,7 @@ public class RegisterControl {
             throw new IllegalArgumentException("Email sudah terdaftar!");
         }
 
-        String noTelp = "-"; 
-        String sql = "INSERT INTO civitas_akademik (nim_nip, nama_lengkap, email, password, no_telepon) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO civitas_akademik (nim_nip, nama_lengkap, email, password) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -102,7 +101,6 @@ public class RegisterControl {
             stmt.setString(2, nama.trim());
             stmt.setString(3, email.trim().toLowerCase());
             stmt.setString(4, password);
-            stmt.setString(5, noTelp);
 
             return stmt.executeUpdate() > 0;
         }

@@ -231,7 +231,7 @@ public class BookingControl {
         }
 
         int startHour = Integer.parseInt(startTime.substring(0, 2));
-        int limitHour = 22; // Max operational hour + 1
+        int limitHour = 21; // Max operational hour
         
         LocalDate today = LocalDate.now();
         int currentHour = java.time.LocalTime.now().getHour();

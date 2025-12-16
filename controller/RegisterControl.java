@@ -78,11 +78,15 @@ public class RegisterControl {
      * @throws IllegalArgumentException jika validasi gagal
      * @throws SQLException jika terjadi error database
      */
-    public boolean registerUser(String nim, String nama, String email, String password) 
+    public boolean registerUser(String nim, String nama, String email, String password, String peran) 
             throws IllegalArgumentException, SQLException {
         
         // Validasi input
         validateInput(nim, nama, email, password);
+        
+        if (peran == null || (!peran.equals("Dosen") && !peran.equals("Mahasiswa"))) {
+            throw new IllegalArgumentException("Peran harus dipilih (Dosen/Mahasiswa)!");
+        }
         
         // Cek duplikasi
         if (isNimExists(nim)) {
@@ -92,7 +96,7 @@ public class RegisterControl {
             throw new IllegalArgumentException("Email sudah terdaftar!");
         }
 
-        String sql = "INSERT INTO civitas_akademik (nim_nip, nama_lengkap, email, password) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO civitas_akademik (nim_nip, nama_lengkap, email, password, peran) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -101,7 +105,8 @@ public class RegisterControl {
             stmt.setString(2, nama.trim());
             stmt.setString(3, email.trim().toLowerCase());
             stmt.setString(4, password);
-
+            stmt.setString(5, peran);
+            
             return stmt.executeUpdate() > 0;
         }
     }

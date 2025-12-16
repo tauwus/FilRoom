@@ -66,7 +66,7 @@ public class LoginControl {
     }
 
     private boolean checkCivitasLogin(String emailOrNim, String password) throws SecurityException {
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun, peran FROM civitas_akademik WHERE (email = ? OR nim_nip = ?) AND password = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -93,7 +93,8 @@ public class LoginControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    accountStatus
+                    accountStatus,
+                    rs.getString("peran")
                 );
                 AuthControl.createSession(user);
                 return true;

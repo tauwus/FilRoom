@@ -8,9 +8,10 @@ import java.util.List;
 public class AdminBookingControl {
 
     public List<Booking> getPendingBookings() {
+        new BookingControl().autoUpdateBookingStatus(); // Update status first
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.booking_id, b.tanggal_pengajuan, b.keterangan_kegiatan, b.status_peminjaman, " +
-                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun, " +
+                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun, u.peran, " +
                      "bd.room_id, r.nama_ruangan, bd.tanggal_pemakaian, bd.waktu_mulai, bd.waktu_selesai " +
                      "FROM bookings b " +
                      "JOIN civitas_akademik u ON b.user_id = u.user_id " +
@@ -29,7 +30,8 @@ public class AdminBookingControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("status_akun")
+                    rs.getString("status_akun"),
+                    rs.getString("peran")
                 );
                 
                 Booking booking = new Booking(
@@ -62,9 +64,10 @@ public class AdminBookingControl {
     }
     
     public List<Booking> getAllBookings() {
+        new BookingControl().autoUpdateBookingStatus(); // Update status first
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.booking_id, b.tanggal_pengajuan, b.keterangan_kegiatan, b.status_peminjaman, " +
-                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun " +
+                     "u.user_id, u.nama_lengkap, u.nim_nip, u.email, u.status_akun, u.peran " +
                      "FROM bookings b " +
                      "JOIN civitas_akademik u ON b.user_id = u.user_id " +
                      "ORDER BY b.tanggal_pengajuan DESC";
@@ -79,7 +82,8 @@ public class AdminBookingControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("status_akun")
+                    rs.getString("status_akun"),
+                    rs.getString("peran")
                 );
                 
                 Booking booking = new Booking(

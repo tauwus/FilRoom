@@ -249,9 +249,19 @@ public class ProfilePage extends JPanel {
             
             if (currentUser instanceof CivitasAkademik) {
                 CivitasAkademik civitas = (CivitasAkademik) currentUser;
-                nimLabel.setText(civitas.getNim());
+                String label = "NIM";
+                if ("Dosen".equalsIgnoreCase(civitas.getPeran())) {
+                    label = "NIP";
+                }
+                nimLabel.setText(label + ": " + civitas.getNim());
                 emailField.setText(civitas.getEmail());
                 nimField.setText(civitas.getNim());
+                
+                // Update label text for the read-only field as well if possible, 
+                // but the label is created inside createReadOnlyField and not stored.
+                // We might need to recreate the panel or just accept it says "NIM" for now 
+                // or try to find the component. 
+                // For simplicity, let's just update the nimLabel under the name.
             } else {
                 nimLabel.setText("-");
                 emailField.setText("-");
@@ -416,8 +426,8 @@ public class ProfilePage extends JPanel {
         JTextField editEmailField = new JTextField(civitas.getEmail(), 25);
         
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-        panel.add(new JLabel("Nama Lengkap:"));
-        panel.add(editNameField);
+        // panel.add(new JLabel("Nama Lengkap:"));
+        // panel.add(editNameField);
         panel.add(new JLabel("Email:"));
         panel.add(editEmailField);
         

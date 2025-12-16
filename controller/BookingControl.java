@@ -10,7 +10,38 @@ import java.util.List;
 
 public class BookingControl {
 
+    /**
+     * Automatically update booking status to 'Selesai' if the start time has passed.
+     * This should be called before retrieving booking data.
+     */
+    public void autoUpdateBookingStatus() {
+        String sql = "UPDATE b " +
+                     "SET b.status_peminjaman = ? " +
+                     "FROM bookings b " +
+                     "JOIN booking_details bd ON b.booking_id = bd.booking_id " +
+                     "WHERE b.status_peminjaman = ? " +
+                     "AND (" +
+                     "    bd.tanggal_pemakaian < CAST(GETDATE() AS DATE) " +
+                     "    OR (" +
+                     "        bd.tanggal_pemakaian = CAST(GETDATE() AS DATE) " +
+                     "        AND bd.waktu_mulai <= CAST(GETDATE() AS TIME)" +
+                     "    )" +
+                     ")";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, BookingStatus.SELESAI.toString());
+            stmt.setString(2, BookingStatus.DISETUJUI.toString());
+            
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public List<String[]> getRecentBookings(int userId) {
+        autoUpdateBookingStatus(); // Update status first
         List<String[]> bookings = new ArrayList<>();
         String sql = "SELECT TOP 3 b.status_peminjaman, bd.tanggal_pemakaian, bd.waktu_mulai, bd.waktu_selesai, r.nama_ruangan " +
                      "FROM bookings b " +
@@ -118,6 +149,7 @@ public class BookingControl {
     }
 
      public int countActiveBookings(int userId) {
+        autoUpdateBookingStatus(); // Update status first
         int count = 0;
         // Kita anggap "Aktif" adalah yang statusnya Menunggu atau Disetujui
         String sql = "SELECT COUNT(*) AS total FROM bookings " +
@@ -141,6 +173,7 @@ public class BookingControl {
     }
 
     public int[] getBookingStatistics(int userId) {
+        autoUpdateBookingStatus(); // Update status first
         // Returns array: [Total, Approved, Pending, Completed]
         int[] stats = new int[4];
         String sql = "SELECT " +
@@ -271,6 +304,7 @@ public class BookingControl {
      * Returns array: [roomName, bookingDate, startTime, endTime, purpose, status]
      */
     public List<String[]> getUserBookingsFiltered(int userId, String filter) {
+        autoUpdateBookingStatus(); // Update status first
         List<String[]> bookings = new ArrayList<>();
         
         StringBuilder sql = new StringBuilder();

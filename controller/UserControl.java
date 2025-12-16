@@ -16,7 +16,7 @@ public class UserControl {
      * Mendapatkan data user berdasarkan ID
      */
     public CivitasAkademik getUserById(int userId) {
-        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun FROM civitas_akademik WHERE user_id = ?";
+        String sql = "SELECT user_id, nama_lengkap, nim_nip, email, status_akun, peran FROM civitas_akademik WHERE user_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -30,7 +30,8 @@ public class UserControl {
                     rs.getString("nama_lengkap"),
                     rs.getString("nim_nip"),
                     rs.getString("email"),
-                    rs.getString("status_akun")
+                    rs.getString("status_akun"),
+                    rs.getString("peran")
                 );
             }
         } catch (SQLException e) {

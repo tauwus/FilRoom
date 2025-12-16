@@ -7,7 +7,6 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     
-    // Simpan referensi page agar bisa diakses
     private BookingForm bookingForm; 
     private RoomListPage roomListPage;
 
@@ -21,8 +20,7 @@ public class MainFrame extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        // Initialize pages
-        bookingForm = new BookingForm(this); // Init Booking Form
+        bookingForm = new BookingForm(this);
         roomListPage = new RoomListPage(this);
 
         mainPanel.add(new SplashScreen(this), "Splash");
@@ -35,7 +33,6 @@ public class MainFrame extends JFrame {
         mainPanel.add(new DateSelectionPage(this), "DateSelection");
         mainPanel.add(roomListPage, "RoomList");
         
-        // Add BookingForm
         mainPanel.add(bookingForm, "BookingForm");
         
         add(mainPanel);
@@ -47,7 +44,6 @@ public class MainFrame extends JFrame {
         cardLayout.show(mainPanel, viewName);
     }
 
-    // Helper untuk mengambil object panel tertentu (untuk passing data)
     public Component getView(String name) {
         if ("BookingForm".equals(name)) return bookingForm;
         if ("RoomList".equals(name)) return roomListPage;

@@ -39,6 +39,19 @@ public class RegisterPage extends JPanel {
 
         centerPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
+        // Role Selection
+        String[] roles = {"Mahasiswa", "Dosen"};
+        JComboBox<String> roleCombo = new JComboBox<>(roles);
+        roleCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        roleCombo.setBackground(Color.WHITE);
+        roleCombo.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1, true),
+            new EmptyBorder(5, 5, 5, 5)
+        ));
+        centerPanel.add(roleCombo);
+
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
         idField = new JTextField();
         styleTextField(idField, "NIM/NIP");
         centerPanel.add(idField);
@@ -65,11 +78,13 @@ public class RegisterPage extends JPanel {
             String nim = getRealText(idField, "NIM/NIP");
             String email = getRealText(emailField, "Email");
             String pass = new String(passwordField.getPassword());
+            String peran = (String) roleCombo.getSelectedItem();
+
             if(pass.equals("Kata Sandi")) pass = "";
 
             try {
                 // Validasi dan registrasi dilakukan di Controller
-                boolean success = registerControl.registerUser(nim, nama, email, pass);
+                boolean success = registerControl.registerUser(nim, nama, email, pass, peran);
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Registrasi Berhasil! Silakan Login.");
                     mainFrame.showView("Login");

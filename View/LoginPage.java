@@ -48,19 +48,6 @@ public class LoginPage extends JPanel {
         styleTextField(passwordField, "Kata Sandi");
         centerPanel.add(passwordField);
 
-        centerPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-
-        // Forgot Password
-        JLabel forgotPassLabel = new JLabel("Lupa Password?");
-        forgotPassLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        forgotPassLabel.setForeground(new Color(50, 50, 150));
-        forgotPassLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        JPanel forgotPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        forgotPanel.setBackground(Color.WHITE);
-        forgotPanel.setMaximumSize(new Dimension(400, 30));
-        forgotPanel.add(forgotPassLabel);
-        centerPanel.add(forgotPanel);
-
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
         // Login Button
